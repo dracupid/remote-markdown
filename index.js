@@ -54,7 +54,6 @@ formatData = function(md, url, repo){
 			return match;
 		}
 		else{
-			console.log(match, '--', p1)
 			if(repo){
 				return match.replace(p1, 'https://github.com/' + repo + '/blob/master/' + p1);
 			}
