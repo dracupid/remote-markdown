@@ -4,7 +4,7 @@
   "description": "View prettily markdown by an url or a github repo name.",
   "main": "index.js",
   "bin": {
-    "remote-md": "index.js"
+    "rmd": "index.js"
   },
   "dependencies": {
     "commander": "*",

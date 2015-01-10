@@ -18,7 +18,7 @@ npm i remote-markdown -g
 ##Usage
 
 ```bash
-Usage: remote-md [url] [options]
+Usage: rmd [url] [options]
 
   Options:
 
@@ -30,7 +30,7 @@ Usage: remote-md [url] [options]
 
 For example
 ```bash
-remote-md dracupid/npm-up
+rmd dracupid/npm-up
 ```
 As you can see, your default browser is opened at `127.0.0.1:8080/dracupid/npm-up`(assume that the port is default one), and the markdown file is prettily shown. From now on, you can just change the URL to view other markdown files, such as
 ```
@@ -40,7 +40,7 @@ As you can see, your default browser is opened at `127.0.0.1:8080/dracupid/npm-u
 
 Of course, you can use an url directly, especially the markdown file is not a github readme
 ```bash
-remote-md https://raw.githubusercontent.com/dracupid/npm-up/master/readme.md
+rmd https://raw.githubusercontent.com/dracupid/npm-up/master/readme.md
 ```
 
 
