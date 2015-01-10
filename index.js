@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 var version = require('./package.json').version;
 
-
-
 var cmder = require('commander');
 
 cmder
@@ -17,16 +15,17 @@ cmder.parse(process.argv);
 var kit = require('nokit'),
 	http = require('http'),
 	markdown = require('marked'),
-	hl = require('highlight.js');
+	hl = require('highlight.js'),
+	pwd = __dirname;
 
-var style = kit.fs.readFileSync('markdown.css'),
+var style = kit.fs.readFileSync(kit.path.join(pwd, 'markdown.css')),
 	theme = cmder.style || 'rainbow',
 	port = cmder.port || 8080,
 	cache = {},
 	filterRe = /\.png|\.jpg|\.jpeg|\.gif|\.js|\.css|\.ico$/,
-	readme = kit.fs.readFileSync('readme.md');
+	readme = kit.fs.readFileSync(kit.path.join(pwd, 'readme.md'));
 
-style += kit.fs.readFileSync('node_modules/highlight.js/styles/' + theme + '.css');
+style += kit.fs.readFileSync(kit.path.join(pwd, 'node_modules/highlight.js/styles/') + theme + '.css');
 readme = '<style>' + style + '</style>' + markdown(readme + '');
 
 markdown.setOptions({
