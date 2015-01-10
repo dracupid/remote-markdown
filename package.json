@@ -10,7 +10,7 @@
     "commander": "*",
     "highlight.js": "*",
     "marked": "*",
-    "nokit": "^0.2.4"
+    "nokit": "0.2.4"
   },
   "devDependencies": {},
   "scripts": {
