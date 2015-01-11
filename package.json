@@ -1,6 +1,6 @@
 {
   "name": "remote-markdown",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "View prettily markdown by an url or a github repo name.",
   "main": "index.js",
   "bin": {
