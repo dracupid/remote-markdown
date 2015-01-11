@@ -5,8 +5,8 @@ View a online markdown file by url or github repo name prettily.
 
 - Markdown to HTML (by [marked](https://github.com/chjj/marked))
 - Syntax highlight. (by [highlight.js](https://github.com/isagalaev/highlight.js))
-- Better markdown syntax support, and pretty style. Don't bother to download the markdown file manually.
-- Table of contents (todo)
+- Enjoy better markdown syntax support, and pretty style online. Don't bother to download the markdown file manually.
+- Table of contents.
 - Smart enough to find the `readme.md` or `README.md` or `Readme.md` by a repo name.
 - Automanticlly replace the url in the markdown file.
 
