@@ -26,7 +26,7 @@ var style = kit.fs.readFileSync(kit.path.join(pwd, 'markdown.css')),
 	theme = cmder.style || 'rainbow',
 	port = cmder.port || 8080,
 	cache = {},
-	filterRe = /\.png|\.jpg|\.jpeg|\.gif|\.js|\.css|\.ico$/,
+	filterRe = /\.png|\.jpg|\.jpeg|\.gif|\.ico$/,
 	readme = kit.fs.readFileSync(kit.path.join(pwd, 'readme.md')) + '';
 
 
@@ -137,8 +137,14 @@ http.createServer(function(req, res){
 						remoteUrl = remoteUrl.replace('README.md', 'Readme.md')
 						kit.log("Retry " + remoteUrl.green);
 						kit.request(remoteUrl).then(function(r){
-							kit.log("Done".cyan);
-							res.end(formatData(r, remoteUrl, repo));
+							if(repo && r === 'Not Found'){
+								kit.err("Can't find Readme".red);
+								res.end("Can't find Readme for this repo: " + repo);
+							}
+							else{
+								kit.log("Done".cyan);
+								res.end(formatData(r, remoteUrl, repo));
+							}
 						});
 					}
 					else {
