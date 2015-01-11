@@ -17,6 +17,7 @@ var kit = require('nokit'),
 	md = require('marked'),
 	hl = require('highlight.js'),
 	toc = require('marked-toc'),
+	slugify = require('uslug'),
 	pwd = __dirname;
 
 
@@ -41,11 +42,17 @@ md.setOptions({
 		return hled
   }
 });
+var renderer = new md.Renderer();
 
+renderer.heading = function (text, level, rawText) {
+	var id = slugify(rawText, { allowedChars: '-' });
+
+	return '<h' + level + ' id="' + id + '">' + text + '</h' + level + '>';
+}
 
 var markdown = function(str){
-	var data = '<div id="toc">' + md(toc(str)) + '</div>';
-	data += '<div id="md">' + md(str) + '</div>'
+	var data = '<div id="toc">' + md(toc(str, {slugifyOptions: { allowedChars: '-' }}), {renderer: renderer}) + '</div>';
+	data += '<div id="md">' + md(str, {renderer: renderer}) + '</div>'
 	return data;
 }
 
@@ -102,17 +109,15 @@ http.createServer(function(req, res){
 		return;
 	}
 
-	if(!/^http/.test(remoteUrl)){
-		// Reguard as a github repo
-		repo = remoteUrl;
-		remoteUrl = "https://raw.githubusercontent.com/" + remoteUrl + "/master/readme.md";
-	}
-	else {
-		if(filterRe.test(remoteUrl)){
+	if(filterRe.test(remoteUrl)){
 			res.statusCode = 404;
 			res.end();
 			return;
-		}
+	}
+	else if(!/^http/.test(remoteUrl)){
+		// Reguard as a github repo
+		repo = remoteUrl;
+		remoteUrl = "https://raw.githubusercontent.com/" + remoteUrl + "/master/readme.md";
 	}
 
 	kit.log("Render " + remoteUrl.green);
