@@ -14,21 +14,22 @@ cmder.parse(process.argv);
 
 var kit = require('nokit'),
 	http = require('http'),
-	markdown = require('marked'),
+	md = require('marked'),
 	hl = require('highlight.js'),
+	toc = require('marked-toc'),
 	pwd = __dirname;
+
+
 
 var style = kit.fs.readFileSync(kit.path.join(pwd, 'markdown.css')),
 	theme = cmder.style || 'rainbow',
 	port = cmder.port || 8080,
 	cache = {},
 	filterRe = /\.png|\.jpg|\.jpeg|\.gif|\.js|\.css|\.ico$/,
-	readme = kit.fs.readFileSync(kit.path.join(pwd, 'readme.md'));
+	readme = kit.fs.readFileSync(kit.path.join(pwd, 'readme.md')) + '';
 
-style += kit.fs.readFileSync(kit.path.join(pwd, 'node_modules/highlight.js/styles/') + theme + '.css');
-readme = '<style>' + style + '</style>' + markdown(readme + '');
 
-markdown.setOptions({
+md.setOptions({
 	highlight: function (code, lang) {
 		(lang == 'shell') && (lang = 'bash');
 
@@ -42,23 +43,30 @@ markdown.setOptions({
 });
 
 
+var markdown = function(str){
+	var data = '<div id="toc">' + md(toc(str)) + '</div>';
+	data += '<div id="md">' + md(str) + '</div>'
+	return data;
+}
+
+style += kit.fs.readFileSync(kit.path.join(pwd, 'node_modules/highlight.js/styles/') + theme + '.css');
+readme = '<style>' + style + '</style>' + markdown(readme);
+
 
 formatData = function(md, url, repo){
 	var data = '';
 	md = md.replace(/!?\[[^\[\]]*\]\(([^\[\]]*)\)/g, function(match, p1){
-		console.log(p1)
-		if(p1.indexOf('http') === 0 || p1.indexOf('//') === 0 || p1.indexOf('＃') === 0){
+		if(p1.indexOf('://') !== -1 || p1.indexOf('//') === 0 || p1.indexOf('#') === 0){
 			return match;
 		}
 		else{
-			console.log(p1)
 			var dir = url.split('/');
 			dir.pop();
 			return match.replace(p1, dir.join('/') + '/' + p1);
 		}
 	});
 	md = md.replace(/href\s*=\s*['"]([^'"]*)["']/g, function(match, p1){
-		if(p1.indexOf('http') === 0 || p1.indexOf('//') === 0 || p1.indexOf('＃') === 0){
+		if(p1.indexOf('://') !== -1 || p1.indexOf('//') === 0 || p1.indexOf('#') === 0){
 			return match;
 		}
 		else{
@@ -108,7 +116,6 @@ http.createServer(function(req, res){
 	}
 
 	kit.log("Render " + remoteUrl.green);
-	
 
 	if(cache[remoteUrl]){
 		kit.log("Done (from cache)".cyan);
