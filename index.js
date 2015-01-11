@@ -29,8 +29,15 @@ style += kit.fs.readFileSync(kit.path.join(pwd, 'node_modules/highlight.js/style
 readme = '<style>' + style + '</style>' + markdown(readme + '');
 
 markdown.setOptions({
-	highlight: function (code) {
-		return hl.highlightAuto(code).value;
+	highlight: function (code, lang) {
+		(lang == 'shell') && (lang = 'bash');
+
+		hled = code
+		try {
+			hled = hl.highlight(lang, code).value;
+		} catch(e) {}
+
+		return hled
   }
 });
 
@@ -39,17 +46,19 @@ markdown.setOptions({
 formatData = function(md, url, repo){
 	var data = '';
 	md = md.replace(/!?\[[^\[\]]*\]\(([^\[\]]*)\)/g, function(match, p1){
-		if(p1.indexOf('http') === 0 || p1.indexOf('//') === 0){
+		console.log(p1)
+		if(p1.indexOf('http') === 0 || p1.indexOf('//') === 0 || p1.indexOf('＃') === 0){
 			return match;
 		}
 		else{
+			console.log(p1)
 			var dir = url.split('/');
 			dir.pop();
 			return match.replace(p1, dir.join('/') + '/' + p1);
 		}
 	});
 	md = md.replace(/href\s*=\s*['"]([^'"]*)["']/g, function(match, p1){
-		if(p1.indexOf('http') === 0 || p1.indexOf('//') === 0){
+		if(p1.indexOf('http') === 0 || p1.indexOf('//') === 0 || p1.indexOf('＃') === 0){
 			return match;
 		}
 		else{
@@ -75,6 +84,10 @@ formatData = function(md, url, repo){
 http.createServer(function(req, res){
 	var remoteUrl = req.url.slice(1), repo = false;
 
+	res.writeHead(200, {'Content-type' : 'text/html'});
+	res.write('<meta charset=utf8>')
+	res.write('<title>Remote Markdown</title>')
+
 	if(!remoteUrl){
 		kit.log("Show Readme");
 		res.end(readme);
@@ -95,9 +108,7 @@ http.createServer(function(req, res){
 	}
 
 	kit.log("Render " + remoteUrl.green);
-	res.writeHead(200, {'Content-type' : 'text/html'});
-	res.write('<meta charset=utf8>')
-	res.write('<title>Remote Markdown</title>')
+	
 
 	if(cache[remoteUrl]){
 		kit.log("Done (from cache)".cyan);

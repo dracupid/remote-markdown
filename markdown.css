@@ -1,9 +1,10 @@
 body {
-  font-family: "Avenir Next", Arial,'Helvetica Neue',"Microsoft YaHei New","Microsoft Yahei","微软雅黑","宋体",Simsum,STXihei,"华文细黑",sans-serif;
+  font-family: 'Avenir Next',Avenir,'Helvetica Neue',Helvetica,'Lantinghei SC','Hiragino Sans GB','Microsoft YaHei',"微软雅黑",STHeiti,'WenQuanYi Micro Hei',SimSun,sans-serif;
   padding:1em;
   margin-left: 8%;
   margin-right: 8%;
   background:#fefefe;
+  color: #555
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -77,7 +78,7 @@ code, pre, #ws, #message {
   font-family: Monaco;
   font-size: 10pt;
   border-radius: 3px;
-  background-color: #F8F8F8;
+  background-color: #f5f2f0;
   color: inherit;
 }
 
