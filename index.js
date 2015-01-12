@@ -60,7 +60,7 @@ style += kit.fs.readFileSync(kit.path.join(pwd, 'node_modules/highlight.js/style
 readme = '<style>' + style + '</style>' + markdown(readme);
 
 
-formatData = function(md, url, repo){
+formatData = function(md, url, isRepo){
 	var data = '';
 	md = md.replace(/!?\[[^\[\]]*\]\(([^\[\]]*)\)/g, function(match, p1){
 		if(p1.indexOf('://') !== -1 || p1.indexOf('//') === 0 || p1.indexOf('#') === 0){
@@ -77,8 +77,8 @@ formatData = function(md, url, repo){
 			return match;
 		}
 		else{
-			if(repo){
-				return match.replace(p1, 'https://github.com/' + repo + '/blob/master/' + p1);
+			if(isRepo){
+				return match.replace(p1, 'https://github.com/' + url + '/blob/master/' + p1);
 			}
 			else {
 				var dir = url.split('/');
@@ -93,6 +93,40 @@ formatData = function(md, url, repo){
 	cache[url.toLowerCase()] = data;
 
 	return data;
+}
+
+var getGithubReadmeP = function(repo){
+	var url = ('https://api.github.com/repos/' + repo + '/readme').green
+	kit.log("Fetching: " + url);
+	var req = kit.request(url);
+	req.req.setTimeout(15000, function(e){
+        return kit.Promise.reject("Timeout");
+    });
+
+	req.then(function(data){
+		if(!data){
+			return '';
+		}
+		console.log(data.content);
+		return new Buffer(data.content).toString(data.encoding);
+	});
+
+	return req;
+}
+
+var fetchP = function(url){
+    return kit.request(remoteUrl).then(function(md){
+		return md;
+	});
+}
+
+var getMarkdownP = function(isRepo, url){
+	if(isRepo){
+		return getGithubReadmeP(url);
+	}
+	else {
+		return getReadmeP(url);
+	}
 }
 
 
@@ -110,14 +144,13 @@ http.createServer(function(req, res){
 	}
 
 	if(filterRe.test(remoteUrl)){
-			res.statusCode = 404;
-			res.end();
-			return;
+		res.statusCode = 404;
+		res.end();
+		return;
 	}
-	else if(!/^http/.test(remoteUrl)){
-		// Reguard as a github repo
-		repo = remoteUrl;
-		remoteUrl = "https://raw.githubusercontent.com/" + remoteUrl + "/master/readme.md";
+
+	if(!/^http/.test(remoteUrl) && !/.md|.markdown^/i.test(remoteUrl)){
+		isRepo = true;
 	}
 
 	kit.log("Render " + remoteUrl.green);
@@ -127,37 +160,16 @@ http.createServer(function(req, res){
 		res.end(cache[remoteUrl]);
 	}
 	else {
-		kit.request(remoteUrl).then(function(r){
-			var data = ''
-			if(repo && r === 'Not Found'){
-				remoteUrl = remoteUrl.replace('readme.md', 'README.md')
-				kit.log("Retry " + remoteUrl.green);
-				kit.request(remoteUrl).then(function(r){
-					if(repo && r === 'Not Found'){
-						remoteUrl = remoteUrl.replace('README.md', 'Readme.md')
-						kit.log("Retry " + remoteUrl.green);
-						kit.request(remoteUrl).then(function(r){
-							if(repo && r === 'Not Found'){
-								kit.err("Can't find Readme".red);
-								res.end("Can't find Readme for this repo: " + repo);
-							}
-							else{
-								kit.log("Done".cyan);
-								res.end(formatData(r, remoteUrl, repo));
-							}
-						});
-					}
-					else {
-						kit.log("Done".cyan);
-						res.end(formatData(r, remoteUrl, repo));
-					}
-				});
+		getMarkdownP(isRepo, remoteUrl).then(function(md){
+			if(!md || md === 'Not Found'){
+				kit.log("Not Found".red);
+				return res.end("Can not find markdown file");
 			}
-			else {
-				kit.log("Done".cyan);
-				res.end(formatData(r, remoteUrl, repo));
-			}
-		}, function(){});
+			res.end(formatData(md, url, isRepo));
+		}, function(err){
+			kit.err(err.toString().red);
+			res.end(err.toString());
+		})
 	}
 }).listen(port);
 
