@@ -1,16 +1,8 @@
-#!/usr/bin/env node
-var version = require('./package.json').version;
+$(function(){
 
-var cmder = require('commander');
-
-cmder
-  .usage("[url or repo] [options]")
-  .version(version)
-  .option('-s, --style <style>', "Hightlight.js style class name, default is rainbow.")
-  .option('-p, --port <port>', "Port of the server, default is 8080.");
+})
 
 
-cmder.parse(process.argv);
 
 var kit = require('nokit'),
 	http = require('http'),
