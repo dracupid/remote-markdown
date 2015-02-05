@@ -11,7 +11,7 @@
     "highlight.js": "*",
     "marked": "*",
     "marked-toc": "*",
-    "nokit": "0.2.4",
+    "nokit": "0.4.5",
     "uslug": "^1.0.3"
   },
   "devDependencies": {},
