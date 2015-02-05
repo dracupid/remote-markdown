@@ -20,13 +20,14 @@ var kit = require('nokit'),
 	slugify = require('uslug'),
 	pwd = __dirname;
 
+kit.require('colors');
 
 
 var style = kit.fs.readFileSync(kit.path.join(pwd, 'markdown.css')),
 	theme = cmder.style || 'rainbow',
 	port = cmder.port || 8080,
 	cache = {},
-	filterRe = /\.png|\.jpg|\.jpeg|\.gif|\.ico$/,
+	filterRe = /\.png|\.jpg|\.jpeg|\.gif|\.ico|\.svg$/,
 	readme = kit.fs.readFileSync(kit.path.join(pwd, 'readme.md')) + '';
 
 
@@ -62,17 +63,24 @@ readme = '<style>' + style + '</style>' + markdown(readme);
 
 formatData = function(md, url, isRepo){
 	var data = '';
-	md = md.replace(/!?\[[^\[\]]*\]\(([^\[\]]*)\)/g, function(match, p1){
+    data += '<style>' + style + '</style>';
+    data += markdown(md);
+	data = data.replace(/src\s*=\s*['"]([^'"]*)["']/g, function(match, p1){
 		if(p1.indexOf('://') !== -1 || p1.indexOf('//') === 0 || p1.indexOf('#') === 0){
 			return match;
 		}
 		else{
-			var dir = url.split('/');
+            if(isRepo){
+               var _url = "https://raw.githubusercontent.com/" + url + "/master/readme.md";
+            }
+            else {
+                _url = url;
+            }
+			var dir = _url.split('/');
 			dir.pop();
 			return match.replace(p1, dir.join('/') + '/' + p1);
 		}
-	});
-	md = md.replace(/href\s*=\s*['"]([^'"]*)["']/g, function(match, p1){
+	}).replace(/href\s*=\s*['"]([^'"]*)["']/g, function(match, p1){
 		if(p1.indexOf('://') !== -1 || p1.indexOf('//') === 0 || p1.indexOf('#') === 0){
 			return match;
 		}
@@ -88,30 +96,27 @@ formatData = function(md, url, isRepo){
 		}
 
 	});
-	data += '<style>' + style + '</style>';
-	data += markdown(md);
+
 	cache[url.toLowerCase()] = data;
 
 	return data;
 }
 
 var getGithubReadmeP = function(repo){
-	var url = ('https://api.github.com/repos/' + repo + '/readme').green
-	kit.log("Fetching: " + url);
-	var req = kit.request(url);
-	req.req.setTimeout(15000, function(e){
-        return kit.Promise.reject("Timeout");
-    });
-
-	req.then(function(data){
+	var url = ('https://api.github.com/repos/' + repo + '/readme')
+	kit.log("Fetching: " + url.green);
+	return kit.request({
+        url: url,
+        headers: {
+            "User-Agent": "linux"
+        }
+    }).then(function(data){
 		if(!data){
 			return '';
 		}
-		console.log(data.content);
-		return new Buffer(data.content).toString(data.encoding);
+        data = JSON.parse(data)
+		return new Buffer(data.content, 'base64').toString();
 	});
-
-	return req;
 }
 
 var fetchP = function(url){
@@ -155,9 +160,9 @@ http.createServer(function(req, res){
 
 	kit.log("Render " + remoteUrl.green);
 
-	if(cache[remoteUrl]){
+	if(cache[remoteUrl.toLowerCase()]){
 		kit.log("Done (from cache)".cyan);
-		res.end(cache[remoteUrl]);
+		res.end(cache[remoteUrl.toLowerCase()]);
 	}
 	else {
 		getMarkdownP(isRepo, remoteUrl).then(function(md){
@@ -165,7 +170,7 @@ http.createServer(function(req, res){
 				kit.log("Not Found".red);
 				return res.end("Can not find markdown file");
 			}
-			res.end(formatData(md, url, isRepo));
+			res.end(formatData(md, remoteUrl, isRepo));
 		}, function(err){
 			kit.err(err.toString().red);
 			res.end(err.toString());
@@ -181,4 +186,4 @@ if(url[0] === '-'){
 	url = '';
 }
 
-kit.open('http://127.0.0.1:' + port + '/' + url);
+kit.xopen('http://127.0.0.1:' + port + '/' + url);
