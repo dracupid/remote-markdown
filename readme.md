@@ -7,8 +7,7 @@ View a online markdown file by url or github repo name prettily.
 - Syntax highlight. (by [highlight.js](https://github.com/isagalaev/highlight.js))
 - Enjoy better markdown syntax support, and pretty style online. Don't bother to download the markdown file manually.
 - Table of contents.
-- Smart enough to find the `readme.md` or `README.md` or `Readme.md` by a repo name.
-- Automanticlly replace the url in the markdown file.
+- Automatically replace the url in the markdown file.
 
 ## Install
 ```bash
@@ -35,7 +34,7 @@ rmd dracupid/npm-up
 As you can see, your default browser is opened at `127.0.0.1:8080/dracupid/npm-up`(assume that the port is default one), and the markdown file is prettily shown. From now on, you can just change the URL to view other markdown files, such as
 ```
 127.0.0.1:8080/https://raw.githubusercontent.com/dracupid/npm-up/master/readme.md
-127.0.0.1:8000/ysmood/nobone
+127.0.0.1:8000/ysmood/nobone   // a github repo
 ```
 
 Of course, you can use an url directly, especially the markdown file is not a github readme
