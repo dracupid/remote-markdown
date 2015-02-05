@@ -1,5 +1,8 @@
 changelog
 ====================
+## 0.3.0
+- Big css style change
+
 ## 0.2.0
 - Migrate to github API
 - Bug fix
