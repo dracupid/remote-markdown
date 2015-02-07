@@ -120,7 +120,7 @@ var getGithubReadmeP = function(repo){
 }
 
 var fetchP = function(url){
-    return kit.request(remoteUrl).then(function(md){
+    return kit.request(url).then(function(md){
 		return md;
 	});
 }
@@ -130,13 +130,13 @@ var getMarkdownP = function(isRepo, url){
 		return getGithubReadmeP(url);
 	}
 	else {
-		return getReadmeP(url);
+		return fetchP(url);
 	}
 }
 
 
 http.createServer(function(req, res){
-	var remoteUrl = req.url.slice(1), repo = false;
+	var remoteUrl = req.url.slice(1), isRepo = false;
 
 	res.writeHead(200, {'Content-type' : 'text/html'});
 	res.write('<meta charset=utf8>')
