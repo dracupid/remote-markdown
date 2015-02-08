@@ -6,7 +6,7 @@ var cmder = require('commander');
 cmder
   .usage("[url or repo] [options]")
   .version(version)
-  .option('-s, --style <style>', "Hightlight.js style class name, default is rainbow.")
+  .option('-s, --style <style>', "Hightlight.js style class name, default is monokai.")
   .option('-p, --port <port>', "Port of the server, default is 8080.");
 
 
@@ -24,12 +24,13 @@ kit.require('colors');
 
 
 var style = kit.fs.readFileSync(kit.path.join(pwd, 'markdown.css')),
-	theme = cmder.style || 'rainbow',
+	theme = cmder.style || 'monokai',
 	port = cmder.port || 8080,
 	cache = {},
 	filterRe = /\.png|\.jpg|\.jpeg|\.gif|\.ico|\.svg$/,
 	readme = kit.fs.readFileSync(kit.path.join(pwd, 'readme.md')) + '';
 
+theme = theme.toLowerCase()
 
 md.setOptions({
 	highlight: function (code, lang) {

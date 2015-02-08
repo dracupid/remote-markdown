@@ -1,5 +1,8 @@
 changelog
 ====================
+## 0.3.2
+- style opt
+
 ## 0.3.1
 - bug fix
 
